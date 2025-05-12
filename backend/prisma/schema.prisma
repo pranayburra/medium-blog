@@ -19,10 +19,10 @@ model User{
   email     String  @unique
   name      String  
   password  String
-  posts     Post[]
+  posts     blog[]
 }
-model Post{
-  id    String   @id @default(uuid())
+model blog{
+  id    Int   @id @default(autoincrement())
   title String
   content String
   publisher Boolean @default(false)
