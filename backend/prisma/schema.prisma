@@ -19,7 +19,7 @@ model User{
   email     String  @unique
   name      String  
   password  String
-  posts     blog[]
+  blogs     blog[]
 }
 model blog{
   id    Int   @id @default(autoincrement())
@@ -28,4 +28,4 @@ model blog{
   publisher Boolean @default(false)
   author  User     @relation(fields: [authorId],references: [id])
   authorId String
-}
+} 

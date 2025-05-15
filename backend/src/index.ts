@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import users from './routes/userRoutes';
 import blogrouter from './routes/blog';
-
+import { cors } from 'hono/cors'
 // type EnvBindings = {
 //   JWT_SECRET: string;
 // };
@@ -12,6 +12,7 @@ const app = new Hono<{
     JWT_SECRET:string
   }
 }>();
+app.use('*',cors());
 app.route('api/v1/blog',blogrouter);
 app.route('api/v1/users',users);
 

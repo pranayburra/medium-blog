@@ -2,8 +2,8 @@ import { Hono } from "hono";
 import { verify } from "hono/jwt";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
-
-const blogrouter = new Hono<{
+import {createblog,updateblog} from "@pranayburra007/medium-common"
+ const blogrouter = new Hono<{
   Bindings:{
     DATABASE_URL: string,
     JWT_SECRET:string
@@ -33,6 +33,14 @@ blogrouter.use('/*',async  (c,next)=>{
 
 blogrouter.post('/',async (c) => {
     const body=await c.req.json();
+    
+    const {success}=createblog.safeParse(body);
+    if(!success){
+        c.status(411);
+        return c.json({
+            message:"Inputs are incorrect"
+        })
+    }
     const authorId=c.get("userId");
     const prisma = new PrismaClient({
       datasourceUrl: c.env.DATABASE_URL,
@@ -56,6 +64,14 @@ blogrouter.post('/',async (c) => {
       datasourceUrl:c.env?.DATABASE_URL,
     }).$extends(withAccelerate());
     const body=await c.req.json();
+   
+    const {success}=updateblog.safeParse(body);
+    if(!success){
+        c.status(411);
+        return c.json({
+            message:"Inputs are incorrect"
+        })
+    }
     const updatedBlog = await prisma.blog.update({
       where: {
         id: body.id,
@@ -75,7 +91,18 @@ blogrouter.get('/bulk',async(c) => {
     datasourceUrl: c.env.DATABASE_URL,
 }).$extends(withAccelerate());
 
-  const blogs=await prisma.blog.findMany();
+  const blogs=await prisma.blog.findMany({
+    select:{
+      content:true,
+      title:true, 
+      id:true,
+      author:{
+        select:{    
+          name:true
+        } 
+    }
+  }
+});
 
   return c.json({
     blogs
@@ -92,7 +119,18 @@ blogrouter.get('/:id',async (c) => {
   const post = await prisma.blog.findUnique({
 		where: {
 			id
-		}
+		},
+    select:{
+      content:true,
+      title:true, 
+      id:true,
+      author:{
+        select:{
+          name:true
+        }
+      }
+    
+    }
 	});
 	return c.json(post)
 })
