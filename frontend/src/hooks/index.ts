@@ -1,6 +1,13 @@
-import axios from 'axios';
-import React, { useState, useEffect } from 'react';
-import { BACKEND_URL } from '../config';
+import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { BACKEND_URL } from "../config";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 
 interface Blog {
   content: string;
@@ -14,48 +21,54 @@ interface Blog {
 
 // Single blog hook
 export const useBlog = ({ id }: { id: string }) => {
-  const [loading, setLoading] = useState(true);
-  const [blog, setBlog] = useState<Blog>();
+  // const [loading, setLoading] = useState(true);
+  // const [blog, setBlog] = useState<Blog>();
 
-  useEffect(() => {
-    axios
-      .get(`${BACKEND_URL}/api/v1/blog/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
-      .then((response) => {
-       console.log(response.data);
-        setBlog(response.data);
-        setLoading(false);
-      });
-  }, [id]);
+  const fetchBlog =
+    async () => {
+      const response=await axios
+        .get(`${BACKEND_URL}/api/v1/blog/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        })
+      return response.data;
+    }
+    const {data: blog,isLoading: loading} = useQuery({
+      queryKey: ["blog", id],
+      queryFn: fetchBlog
+    }
+    )
+    
 
   return { loading, blog };
 };
 
 // Bulk blogs hook
 const useBlogs = () => {
-  const [loading, setLoading] = useState(true);
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const fetchBlogs = async () => {
+    const response = await axios.get(`${BACKEND_URL}/api/v1/blog/bulk`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return response.data.blogs;
+  };
 
-  useEffect(() => {
-    axios
-      .get(`${BACKEND_URL}/api/v1/blog/bulk`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
-      .then((response) => {
-        console.log(response.data.blogs);
-        setBlogs(response.data.blogs);
-        setLoading(false);
-      });
-  }, []);
+  const {
+    data: blogs = [],
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: ["blogs"],
+    queryFn: fetchBlogs,
+    // staleTime: 1000 * 60 * 5, // cache for 5 minutes
+  });
 
   return {
     loading,
     blogs,
+    error,
   };
 };
 

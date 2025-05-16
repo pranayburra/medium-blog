@@ -2,7 +2,9 @@ import React from "react";
 import { useBlog } from "../hooks";
 import { useParams } from "react-router-dom";
 import Appbar from "../components/Appbar";
-import AvatarCard from "../components/Avatar";
+import AvatarCard from "../components/Avatar";  
+import Skeleton from '@mui/material/Skeleton';
+import Stack from '@mui/material/Stack';
 const Blog = () => {
   const { id } = useParams<{
     id: string;
@@ -14,18 +16,23 @@ const Blog = () => {
   console.log(blog);
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-pulse space-y-4">
-          <div className="bg-gray-300 h-32 w-full rounded-md"></div>
-          <div className="bg-gray-300 h-4 w-3/4 rounded"></div>
-          <div className="bg-gray-300 h-4 w-1/2 rounded"></div>
-        </div>
+      <div>
+        <Appbar />
+     <div  className="w-full flex flex-col justify-center  p-4">
+            <Skeleton variant="rectangular" height={120}  className="rounded-lg" />
+            <div className="pt-4">
+              <Skeleton variant="text" width="100%" height={32} />
+              <Skeleton variant="text" width="40%" height={24} />
+              <Skeleton variant="text" width="80%" height={24} />
+            </div>
+          </div>
       </div>
+      
     );
   }
   return (
     <div className="min-h-screen bg-gray-100">
-      {blog ? (
+      {blog &&(
         <div>
           <Appbar />
           <div className="flex justify-center items-center">
@@ -56,9 +63,7 @@ const Blog = () => {
             </div>
           </div>
         </div>
-      ) : (
-        <div>Loading...</div>
-      )}
+      ) }
     </div>
   );
 };
