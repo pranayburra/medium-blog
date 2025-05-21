@@ -1,4 +1,4 @@
-import React, { use, type ChangeEvent } from 'react'
+import React, {  type ChangeEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import Quote from './Quote';
 import { useState } from 'react';
@@ -12,9 +12,9 @@ const Auth = ({type}:{type:"signup"|"signin"}) => {
     email:'',
     password:''
    })
-   const navigate=useNavigate()
+   const navigate=useNavigate();
    const sign=type==="signin"?"signup":"signin";
-async function sendRequest(e:React.FormEvent){
+  async function sendRequest(e:React.FormEvent){
    e.preventDefault();
         try{
         const response= await axios.post(`${BACKEND_URL}/api/v1/users/${type==="signup"?"signup":"signin"}`,postInputs);
@@ -22,11 +22,12 @@ async function sendRequest(e:React.FormEvent){
         console.log(data);  
         // console.log(data.token);
         localStorage.setItem("token",data.jwt);
-        navigate('/blog');
+        navigate('/blogs');
         console.log("Login successful"); 
         }
     catch(err){ 
         console.log(err)
+        alert("msg:alreadyexists")
     }
 }
    

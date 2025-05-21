@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-
 }
 
 datasource db {
@@ -14,18 +13,68 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id        String @id @default(uuid())
-  email     String  @unique
-  name      String  
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String
   password  String
-  blogs     blog[]
+  blogs     Blog[]
+  likes     Like[]
+  comments  Comment[]
+  savedBlogs SavedBlog[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
-model blog{
-  id    Int   @id @default(autoincrement())
-  title String
-  content String
-  publisher Boolean @default(false)
-  author  User     @relation(fields: [authorId],references: [id])
-  authorId String
+
+model Blog {
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String
+  published Boolean   @default(false)
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  String
+  likes     Like[]
+  comments  Comment[]
+  savedBy   SavedBlog[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("blogs")
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  blogId    Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, blogId])
+  @@map("likes")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  blogId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("comments")
+}
+
+model SavedBlog {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  blogId    Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, blogId])
+  @@map("saved_blogs")
 } 
